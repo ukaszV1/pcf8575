@@ -73,7 +73,7 @@ esp_err_t pcf8575_write_port(pcf8575_handle_t *handle)
     if (handle == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
-
+    handle->pins_selected_mode = handle->pins_set;
     uint8_t data[2] = {
         (uint8_t)((handle->pins_set>>8) & 0x00FF),
         (uint8_t)((handle->pins_set) & 0x00FF)
@@ -92,7 +92,7 @@ esp_err_t pcf8575_set_pin(pcf8575_handle_t *handle, pcf8575_pin_t pin, bool stat
     if (handle == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
-
+    BITMASK_SET_PIN(handle->pins_selected_mode, pin, state);
     uint16_t old_mask = handle->pins_set;
     BITMASK_SET_PIN(handle->pins_set, pin, state);
 
@@ -110,6 +110,7 @@ esp_err_t pcf8575_toggle_pin(pcf8575_handle_t *handle, pcf8575_pin_t pin)
     }
 
     handle->pins_set ^= pin;
+    handle->pins_selected_mode ^= pin;
     return pcf8575_write_port(handle);
 }
 
